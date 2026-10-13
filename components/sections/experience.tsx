@@ -1,0 +1,64 @@
+import { Reveal } from "@/components/ui/reveal";
+import { Accent, SectionHeading } from "@/components/ui/section-heading";
+import { Tag } from "@/components/ui/tag";
+import { experience } from "@/data/experience";
+
+export function Experience() {
+  return (
+    <section id="experience" aria-labelledby="experience-title" className="relative py-24 sm:py-32">
+      <div aria-hidden className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-line-strong to-transparent" />
+      <div className="container-page">
+        <SectionHeading
+          index="04"
+          eyebrow="Experience"
+          id="experience-title"
+          title={
+            <>
+              Where I&apos;ve <Accent>worked</Accent>.
+            </>
+          }
+        />
+
+        <ol className="relative mt-14 md:ml-[25%] md:pl-2.5">
+          <span aria-hidden className="absolute top-2 bottom-2 left-[5px] w-px bg-gradient-to-b from-accent/60 via-line-strong to-transparent" />
+          {experience.map((job, i) => (
+            <Reveal as="li" key={job.id} delay={i * 0.08} className="relative pb-14 pl-10 last:pb-0">
+              <span
+                aria-hidden
+                className={
+                  i === 0
+                    ? "absolute top-1.5 left-0 size-[11px] rounded-full border-2 border-accent bg-ink-950 shadow-[0_0_14px_rgb(91_140_255/0.7)]"
+                    : "absolute top-1.5 left-0 size-[11px] rounded-full border-2 border-line-strong bg-ink-950"
+                }
+              />
+              <article id={`exp-${job.id}`} data-anchor aria-labelledby={`exp-${job.id}-title`}>
+                <p className="font-mono text-xs text-subtle">
+                  <time dateTime={job.startISO}>{job.start}</time> —{" "}
+                  {job.endISO ? <time dateTime={job.endISO}>{job.end}</time> : <span className="text-accent-soft">{job.end}</span>}
+                </p>
+                <h3 id={`exp-${job.id}-title`} className="mt-3 text-2xl font-medium tracking-tight text-fg">
+                  {job.role}
+                  <span className="text-muted"> · {job.company}</span>
+                </h3>
+                <p className="mt-3 max-w-2xl leading-relaxed text-muted">{job.summary}</p>
+                <ul className="mt-5 max-w-2xl space-y-2">
+                  {job.points.map((point) => (
+                    <li key={point} className="flex gap-3 text-[0.9375rem] leading-relaxed text-fg/85">
+                      <span aria-hidden className="mt-[0.6rem] h-px w-3 shrink-0 bg-line-strong" />
+                      {point}
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-5 flex flex-wrap gap-1.5">
+                  {job.tags.map((tag) => (
+                    <Tag key={tag}>{tag}</Tag>
+                  ))}
+                </div>
+              </article>
+            </Reveal>
+          ))}
+        </ol>
+      </div>
+    </section>
+  );
+}
