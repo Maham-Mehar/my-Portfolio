@@ -10,6 +10,8 @@ export interface SiteConfig {
   name: string;
   /** Short role line used in metadata and the footer. */
   role: string;
+  /** Used by the portfolio assistant when it refers to you. */
+  pronouns: { subject: string; object: string; possessive: string };
   /** Public contact email, e.g. "name@domain.com". */
   email: string | null;
   /**
@@ -32,7 +34,8 @@ export interface SiteConfig {
 
 export const site: SiteConfig = {
   name: "[Your Name]",
-  role: "Frontend Developer · React.js & Next.js",
+  role: "AI-Powered Frontend Engineer · React.js & Next.js",
+  pronouns: { subject: "she", object: "her", possessive: "her" },
   email: null,
   resumePath: "/resume.pdf",
   socials: {
@@ -47,7 +50,7 @@ export const site: SiteConfig = {
 };
 
 export const seo = {
-  title: `${site.name} — Frontend Developer · React.js, Next.js, TypeScript`,
+  title: `${site.name} — AI-Powered Frontend Engineer · React.js, Next.js, TypeScript`,
   description:
-    "Frontend developer building responsive, production-ready web applications with React.js, Next.js and TypeScript, with backend experience and growing skills in Python, FastAPI and PostgreSQL.",
+    "AI-powered frontend engineer building responsive, production-ready web applications with React.js, Next.js, TypeScript and Tailwind CSS — with backend experience and growing depth in Python, FastAPI and PostgreSQL.",
 };

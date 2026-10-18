@@ -3,13 +3,14 @@
  *  core     → used daily in professional work
  *  working  → used in real projects, comfortable
  *  growing  → actively learning and building with
+ * Skills without a level are practice areas, not graded tools.
  */
 export type Level = "core" | "working" | "growing";
 
 export const levelMeta: Record<Level, { label: string; description: string; dots: number }> = {
   core: { label: "Core", description: "Daily professional use", dots: 3 },
   working: { label: "Working", description: "Used in real projects", dots: 2 },
-  growing: { label: "Growing", description: "Actively learning", dots: 1 },
+  growing: { label: "Learning", description: "Actively learning and building with", dots: 1 },
 };
 
 export interface Skill {
@@ -17,77 +18,79 @@ export interface Skill {
   level?: Level;
 }
 
+export type SkillGroupId = "frontend" | "architecture" | "backend" | "ai" | "tools";
+
 export interface SkillGroup {
-  id: string;
+  id: SkillGroupId;
   title: string;
   description: string;
-  icon: "frontend" | "backend" | "product" | "tools";
   skills: Skill[];
 }
 
 export const skillGroups: SkillGroup[] = [
   {
     id: "frontend",
-    title: "Frontend Engineering",
+    title: "Frontend engineering",
     description: "My core discipline — component-driven interfaces that are fast, typed and responsive.",
-    icon: "frontend",
     skills: [
       { name: "React.js", level: "core" },
       { name: "Next.js", level: "core" },
       { name: "TypeScript", level: "core" },
       { name: "JavaScript", level: "core" },
-      { name: "HTML5 & CSS3", level: "core" },
       { name: "Tailwind CSS", level: "core" },
-      { name: "Responsive Web Design", level: "core" },
-      { name: "Component Architecture", level: "core" },
-      { name: "Reusable UI Components", level: "core" },
-      { name: "API Integration", level: "core" },
-      { name: "UI Implementation from Figma", level: "core" },
+      { name: "HTML5 & CSS3", level: "core" },
+      { name: "Responsive UI Development", level: "core" },
+      { name: "Performance optimization" },
+      { name: "SEO" },
+    ],
+  },
+  {
+    id: "architecture",
+    title: "UI architecture & state",
+    description: "How interfaces stay consistent and easy to extend as they grow.",
+    skills: [
+      { name: "Reusable component architecture", level: "core" },
+      { name: "Figma-to-code implementation", level: "core" },
       { name: "Redux Toolkit", level: "working" },
+      { name: "Form handling & validation" },
+      { name: "Loading, error, empty & success states" },
     ],
   },
   {
     id: "backend",
-    title: "Backend & Data",
+    title: "APIs & backend",
     description: "Enough backend to work across the stack — and deliberately growing with Python.",
-    icon: "backend",
     skills: [
-      { name: "PHP", level: "working" },
+      { name: "API Integration", level: "core" },
       { name: "REST API concepts", level: "working" },
+      { name: "PHP", level: "working" },
       { name: "Authentication & authorization", level: "working" },
-      { name: "Prisma", level: "working" },
-      { name: "Supabase", level: "working" },
       { name: "Python", level: "growing" },
       { name: "FastAPI", level: "growing" },
-      { name: "PostgreSQL", level: "growing" },
     ],
   },
   {
-    id: "product",
-    title: "Product & Application",
-    description: "The kinds of interfaces I build and the details that make them feel finished.",
-    icon: "product",
+    id: "ai",
+    title: "AI & LLM integrations",
+    description: "Interfaces for AI-powered products, and learning to wire LLMs in safely on the server.",
     skills: [
-      { name: "SaaS Applications" },
-      { name: "Dashboards & Admin Panels" },
-      { name: "Marketplace Interfaces" },
-      { name: "AI-Powered Application Interfaces" },
-      { name: "Form Handling & Validation" },
-      { name: "Loading, Error, Empty & Success States" },
-      { name: "Performance & Accessibility" },
+      { name: "AI-powered application interfaces" },
+      { name: "LLM API integration", level: "growing" },
+      { name: "AI-assisted development tools" },
     ],
   },
   {
     id: "tools",
-    title: "Tools & Workflow",
-    description: "A lean, modern workflow from design hand-off to deployment.",
-    icon: "tools",
+    title: "Databases & tools",
+    description: "Data layers I've worked with and a lean workflow from design hand-off to deployment.",
     skills: [
+      { name: "Prisma", level: "working" },
+      { name: "Supabase", level: "working" },
+      { name: "PostgreSQL", level: "growing" },
       { name: "Git & GitHub" },
       { name: "VS Code" },
       { name: "Figma" },
       { name: "Vercel" },
-      { name: "AI-assisted development tools" },
     ],
   },
 ];

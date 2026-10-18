@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { PlaceholderPill } from "@/components/ui/button-link";
 import { Monogram } from "@/components/ui/monogram";
+import { RollText } from "@/components/ui/roll-text";
 import { navItems } from "@/data/navigation";
 import { site } from "@/data/site";
 import { useActiveSection } from "@/lib/use-active-section";
@@ -16,11 +17,21 @@ const resumeHint = "Add your résumé at public/resume.pdf";
 export function Header({ resumeHref }: { resumeHref: string | null }) {
   const active = useActiveSection(sectionIds);
   const [scrolled, setScrolled] = useState(false);
+  const [hidden, setHidden] = useState(false);
   const [open, setOpen] = useState(false);
   const toggleRef = useRef<HTMLButtonElement>(null);
 
+  // Tuck the bar away while reading downward; bring it back on any upward scroll.
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 12);
+    let last = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      setScrolled(y > 12);
+      if (Math.abs(y - last) > 6) {
+        setHidden(y > last && y > 240);
+        last = y;
+      }
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -53,7 +64,11 @@ export function Header({ resumeHref }: { resumeHref: string | null }) {
   const nameLabel = isPlaceholder(site.name) ? site.name : site.name.split(" ")[0];
 
   return (
-    <header
+    <motion.header
+      animate={{ y: hidden && !open ? "-110%" : "0%" }}
+      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+      // Keyboard users tabbing into the bar always get it back.
+      onFocusCapture={() => setHidden(false)}
       className={cn(
         "fixed inset-x-0 top-0 z-50 transition-[background-color,border-color] duration-500",
         open
@@ -86,11 +101,11 @@ export function Header({ resumeHref }: { resumeHref: string | null }) {
                     href={`#${item.id}`}
                     aria-current={isActive ? "true" : undefined}
                     className={cn(
-                      "relative block rounded-full px-3.5 py-1.5 text-[0.8125rem] transition-colors",
+                      "group relative block rounded-full px-3.5 py-1.5 text-[0.8125rem] transition-colors",
                       isActive ? "text-fg" : "text-muted hover:text-fg",
                     )}
                   >
-                    {item.label}
+                    <RollText>{item.label}</RollText>
                   </a>
                 </li>
               );
@@ -180,6 +195,6 @@ export function Header({ resumeHref }: { resumeHref: string | null }) {
           </motion.nav>
         )}
       </AnimatePresence>
-    </header>
+    </motion.header>
   );
 }

@@ -1,15 +1,19 @@
 import { Reveal } from "@/components/ui/reveal";
 import { Accent, SectionHeading } from "@/components/ui/section-heading";
 import { Tag } from "@/components/ui/tag";
+import { TimelineNode, TimelineRail } from "@/components/ui/timeline";
 import { experience } from "@/data/experience";
 
 export function Experience() {
   return (
     <section id="experience" aria-labelledby="experience-title" className="relative py-24 sm:py-32">
-      <div aria-hidden className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-line-strong to-transparent" />
+      <div
+        aria-hidden
+        className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-line-strong to-transparent"
+      />
       <div className="container-page">
         <SectionHeading
-          index="04"
+          index="05"
           eyebrow="Experience"
           id="experience-title"
           title={
@@ -20,21 +24,24 @@ export function Experience() {
         />
 
         <ol className="relative mt-14 md:ml-[25%] md:pl-2.5">
-          <span aria-hidden className="absolute top-2 bottom-2 left-[5px] w-px bg-gradient-to-b from-accent/60 via-line-strong to-transparent" />
+          <TimelineRail className="top-2 bottom-2 left-[5px]" />
           {experience.map((job, i) => (
             <Reveal as="li" key={job.id} delay={i * 0.08} className="relative pb-14 pl-10 last:pb-0">
-              <span
-                aria-hidden
-                className={
-                  i === 0
-                    ? "absolute top-1.5 left-0 size-[11px] rounded-full border-2 border-accent bg-ink-950 shadow-[0_0_14px_rgb(91_140_255/0.7)]"
-                    : "absolute top-1.5 left-0 size-[11px] rounded-full border-2 border-line-strong bg-ink-950"
-                }
-              />
-              <article id={`exp-${job.id}`} data-anchor aria-labelledby={`exp-${job.id}-title`}>
+              <TimelineNode className="absolute top-1.5 left-0" />
+              <article
+                id={`exp-${job.id}`}
+                data-anchor
+                data-spotlight
+                aria-labelledby={`exp-${job.id}-title`}
+                className="spotlight surface -mt-4 rounded-2xl p-6 sm:p-8"
+              >
                 <p className="font-mono text-xs text-subtle">
                   <time dateTime={job.startISO}>{job.start}</time> —{" "}
-                  {job.endISO ? <time dateTime={job.endISO}>{job.end}</time> : <span className="text-accent-soft">{job.end}</span>}
+                  {job.endISO ? (
+                    <time dateTime={job.endISO}>{job.end}</time>
+                  ) : (
+                    <span className="text-accent-soft">{job.end}</span>
+                  )}
                 </p>
                 <h3 id={`exp-${job.id}-title`} className="mt-3 text-2xl font-medium tracking-tight text-fg">
                   {job.role}

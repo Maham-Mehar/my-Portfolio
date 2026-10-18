@@ -1,6 +1,8 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
+import { duration, ease, inView } from "@/lib/motion";
 
 interface RevealProps {
   children: React.ReactNode;
@@ -9,7 +11,7 @@ interface RevealProps {
   as?: "div" | "li" | "article";
 }
 
-/** Gentle entrance on first scroll into view. Renders statically for reduced motion. */
+/** Rise-and-unblur entrance on first scroll into view. Renders statically for reduced motion. */
 export function Reveal({ children, className, delay = 0, as = "div" }: RevealProps) {
   const reduce = useReducedMotion();
   const Component = motion[as];
@@ -17,10 +19,11 @@ export function Reveal({ children, className, delay = 0, as = "div" }: RevealPro
   return (
     <Component
       className={className}
-      initial={reduce ? false : { opacity: 0, y: 18 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "0px 0px -8% 0px" }}
-      transition={{ duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] }}
+      initial={reduce ? false : { opacity: 0, y: 22, filter: "blur(6px)" }}
+      whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+      viewport={inView}
+      // SSR ships the hidden state, so reduced-motion users get an instant snap rather than a fade.
+      transition={reduce ? { duration: 0 } : { duration: duration.base, delay, ease }}
     >
       {children}
     </Component>
