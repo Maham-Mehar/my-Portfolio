@@ -304,3 +304,172 @@ export function runLoop(
     },
   };
 }
+
+/* ───────────── Orbit control (shared by both renderers) ───────────── */
+
+type Quat = [number, number, number, number]; // x, y, z, w
+
+function qMul(a: Quat, b: Quat): Quat {
+  const [ax, ay, az, aw] = a;
+  const [bx, by, bz, bw] = b;
+  return [
+    aw * bx + ax * bw + ay * bz - az * by,
+    aw * by - ax * bz + ay * bw + az * bx,
+    aw * bz + ax * by - ay * bx + az * bw,
+    aw * bw - ax * bx - ay * by - az * bz,
+  ];
+}
+function qAxis(x: number, y: number, z: number, angle: number): Quat {
+  const s = Math.sin(angle / 2);
+  return [x * s, y * s, z * s, Math.cos(angle / 2)];
+}
+function qNormalize(q: Quat): Quat {
+  const l = Math.hypot(...q) || 1;
+  return [q[0] / l, q[1] / l, q[2] / l, q[3] / l];
+}
+
+export interface Orbit {
+  /** Current orientation as a quaternion [x, y, z, w] (Three.js convention: +y up, +z toward the viewer). */
+  readonly quaternion: Quat;
+  /** Rotates a point by the current orientation (same convention). */
+  apply(x: number, y: number, z: number): [number, number, number];
+  /** Total horizontal / vertical rotation so far — used for gentle parallax on decorative layers. */
+  readonly yaw: number;
+  readonly pitch: number;
+  /** Advance one frame; call once per rendered frame. */
+  update(dt: number): void;
+  dispose(): void;
+}
+
+const IDLE_SPEED = 0.12; // rad/s before anyone interacts
+const MAX_YAW_SPEED = 0.95; // rad/s — a full turn takes ~6.6s at most
+const MAX_PITCH_SPEED = 0.6;
+const MIN_CRUISE = 0.2; // once a direction is chosen, the speed never fades below this
+const ACCEL = 2.2; // how quickly the actual speed eases toward the target (1/s)
+
+const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
+const cruise = (v: number, max: number) => (v === 0 ? 0 : Math.sign(v) * clamp(Math.abs(v), MIN_CRUISE, max));
+
+/**
+ * Mouse-steered, persistent rotation — like spinning a real ball.
+ *
+ * Each pointer movement sets a *target angular velocity* (direction from the
+ * movement's sign, speed from how fast it moved). Every frame the actual
+ * velocity eases toward that target and is applied as a small extra turn
+ * around the SCREEN's axes (vertical axis for left/right, horizontal axis for
+ * up/down), on top of the current orientation. So:
+ *   • the globe always starts from where it is — no jumps or resets;
+ *   • it keeps turning in the last chosen direction after the mouse stops;
+ *   • moving the other way smoothly decelerates and reverses it;
+ *   • "right" always rolls the front of the globe to the right, whatever its tilt.
+ *
+ *  • mouse: anywhere over the hero section;  • touch: dragging on the globe
+ *    (vertical page scrolling stays native via touch-action: pan-y).
+ */
+export function createOrbit(stage: HTMLElement, reduce: boolean): Orbit {
+  const host = (stage.closest("section") as HTMLElement | null) ?? stage;
+  // Same starting orientation as before: tilted 0.28 rad toward the viewer, turned 0.6 rad.
+  let q: Quat = qNormalize(qMul(qAxis(1, 0, 0, 0.28), qAxis(0, 1, 0, 0.6)));
+  let yawTotal = 0;
+  let pitchTotal = 0;
+  let yawVel = IDLE_SPEED;
+  let pitchVel = 0;
+  let yawTarget = IDLE_SPEED;
+  let pitchTarget = 0;
+  let last: { x: number; y: number; t: number } | null = null;
+  let dragId: number | null = null;
+  const m = new Float64Array(9); // rotation matrix cache for apply()
+
+  function refreshMatrix() {
+    const [x, y, z, w] = q;
+    m[0] = 1 - 2 * (y * y + z * z);
+    m[1] = 2 * (x * y - z * w);
+    m[2] = 2 * (x * z + y * w);
+    m[3] = 2 * (x * y + z * w);
+    m[4] = 1 - 2 * (x * x + z * z);
+    m[5] = 2 * (y * z - x * w);
+    m[6] = 2 * (x * z - y * w);
+    m[7] = 2 * (y * z + x * w);
+    m[8] = 1 - 2 * (x * x + y * y);
+  }
+  refreshMatrix();
+
+  /** dx, dy in px over dtMs → new target velocities (blended so one jittery event can't flip direction). */
+  function steer(dx: number, dy: number, dtMs: number) {
+    const dt = clamp(dtMs, 12, 120) / 1000;
+    if (Math.abs(dx) >= 1) {
+      const want = clamp((dx / dt) * 0.0009, -MAX_YAW_SPEED, MAX_YAW_SPEED);
+      yawTarget = cruise(yawTarget * 0.6 + want * 0.4, MAX_YAW_SPEED);
+    }
+    if (Math.abs(dy) >= 1) {
+      const want = clamp((dy / dt) * 0.0007, -MAX_PITCH_SPEED, MAX_PITCH_SPEED);
+      pitchTarget = cruise(pitchTarget * 0.6 + want * 0.4, MAX_PITCH_SPEED);
+    }
+  }
+
+  const onMove = (e: PointerEvent) => {
+    if (e.pointerType !== "mouse" && e.pointerId !== dragId) return;
+    const now = performance.now();
+    if (last) steer(e.clientX - last.x, e.clientY - last.y, now - last.t);
+    last = { x: e.clientX, y: e.clientY, t: now };
+  };
+  // Leaving the hero only forgets the last pointer position — the chosen rotation keeps going.
+  const onLeave = () => {
+    last = null;
+  };
+  const onDown = (e: PointerEvent) => {
+    if (e.pointerType === "mouse") return;
+    dragId = e.pointerId;
+    last = { x: e.clientX, y: e.clientY, t: performance.now() };
+  };
+  const onUp = (e: PointerEvent) => {
+    if (e.pointerId === dragId) {
+      dragId = null;
+      last = null;
+    }
+  };
+
+  if (!reduce) {
+    host.addEventListener("pointermove", onMove);
+    host.addEventListener("pointerleave", onLeave);
+    stage.addEventListener("pointerdown", onDown);
+    stage.addEventListener("pointerup", onUp);
+    stage.addEventListener("pointercancel", onUp);
+    stage.style.touchAction = "pan-y";
+  }
+
+  return {
+    get quaternion() {
+      return q;
+    },
+    apply(x, y, z) {
+      return [m[0]! * x + m[1]! * y + m[2]! * z, m[3]! * x + m[4]! * y + m[5]! * z, m[6]! * x + m[7]! * y + m[8]! * z];
+    },
+    get yaw() {
+      return yawTotal;
+    },
+    get pitch() {
+      return pitchTotal;
+    },
+    update(dt) {
+      if (reduce) return;
+      const k = Math.min(1, dt * ACCEL); // smooth acceleration, deceleration and reversal
+      yawVel += (yawTarget - yawVel) * k;
+      pitchVel += (pitchTarget - pitchVel) * k;
+      const dYaw = yawVel * dt;
+      const dPitch = pitchVel * dt;
+      yawTotal += dYaw;
+      pitchTotal += dPitch;
+      // Pre-multiply = rotate about the fixed screen axes, starting from the current orientation.
+      q = qNormalize(qMul(qMul(qAxis(0, 1, 0, dYaw), qAxis(1, 0, 0, dPitch)), q));
+      refreshMatrix();
+    },
+    dispose() {
+      host.removeEventListener("pointermove", onMove);
+      host.removeEventListener("pointerleave", onLeave);
+      stage.removeEventListener("pointerdown", onDown);
+      stage.removeEventListener("pointerup", onUp);
+      stage.removeEventListener("pointercancel", onUp);
+    },
+  };
+}

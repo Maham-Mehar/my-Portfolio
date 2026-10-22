@@ -57,6 +57,7 @@ export function Craft() {
           index="06"
           eyebrow="Development philosophy"
           id="craft-title"
+          variant="manifesto"
           title={
             <>
               How I think about <Accent>building</Accent> interfaces.
@@ -65,7 +66,7 @@ export function Craft() {
           intro="The principles behind the code I write — and a few habits that put them into practice, with short, simplified examples."
         />
 
-        <ul aria-label="Principles" className="mt-12 flex flex-wrap gap-2 md:ml-[25%] md:pl-2.5">
+        <ul aria-label="Principles" className="mt-12 flex flex-wrap gap-2">
           {philosophy.map((item, i) => (
             <Reveal as="li" key={item} delay={i * 0.04}>
               <span className="inline-flex min-h-9 items-center gap-2.5 rounded-full border border-line bg-white/[0.025] px-3.5 text-[0.8125rem] text-fg/85 transition-colors duration-300 hover:border-accent/40 hover:text-fg">

@@ -20,6 +20,8 @@ export function AiLab() {
           index="04"
           eyebrow="AI Lab"
           id="lab-title"
+          variant="lab"
+          meta={["2 experiments", "status: experimental"]}
           title={
             <>
               Where the interface meets the <Accent>model</Accent>.

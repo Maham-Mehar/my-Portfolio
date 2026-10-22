@@ -1,65 +1,70 @@
-import { Accent, SectionHeading } from "@/components/ui/section-heading";
 import { Reveal } from "@/components/ui/reveal";
-import { ScrollLitText } from "@/components/ui/scroll-lit-text";
+import { Accent, SectionHeading } from "@/components/ui/section-heading";
+import { cn } from "@/lib/utils";
+import { AboutAnatomy } from "./about-anatomy";
+import { Approach, StackFile } from "./about-profile";
+import { AboutStatement } from "./about-statement";
 
-const principles = [
-  { title: "Clean architecture", text: "Clear boundaries and components that are easy to change later." },
-  { title: "Practical problem-solving", text: "The simplest approach that fully solves the real problem." },
-  { title: "Continuous learning", text: "Currently going deeper on Python, FastAPI and PostgreSQL." },
-  { title: "Collaboration", text: "Working closely with designers, developers and product teams." },
-];
-
-const statement =
-  "I build responsive, polished and scalable web applications — turning designs, data and APIs into interfaces people genuinely enjoy using, with React.js, Next.js and TypeScript at the core.";
-
+/**
+ * About — "the anatomy of an interface". Uses the shared SectionHeading, then a
+ * walk through the four layers I build, a short statement, and two sub-rows
+ * (stack, how I work) on the same 3 / 9 grid as the heading so everything aligns.
+ */
 export function About() {
   return (
-    <section id="about" aria-labelledby="about-title" className="py-24 sm:py-32">
+    <section id="about" aria-labelledby="about-title" className="relative overflow-x-clip py-24 sm:py-32">
       <div className="container-page">
         <SectionHeading
           index="01"
           eyebrow="About"
           id="about-title"
-          title={
+          variant="editorial"
+          title="I build the layers between"
+          title2={
             <>
-              Thoughtful, responsive and <Accent>maintainable</Accent> — in that order of care.
+              an <Accent>idea</Accent> and the person using it.
             </>
           }
+          intro="Frontend engineer working in React.js, Next.js and TypeScript, growing into backend and AI-powered interfaces."
         />
 
-        <div className="mt-14 grid gap-12 md:grid-cols-12 md:gap-10">
-          <ScrollLitText
-            text={statement}
-            highlight={["React.js", "Next.js", "TypeScript"]}
-            className="text-[clamp(1.5rem,3.2vw,2.4rem)] leading-[1.22] font-medium tracking-[-0.025em] text-pretty text-fg md:col-span-9 md:col-start-4"
-          />
+        <AboutAnatomy />
 
-          <Reveal className="space-y-5 text-base leading-relaxed text-pretty text-muted sm:text-lg md:col-span-7 md:col-start-4">
-            <p>
-              My core strength is <span className="text-fg">frontend engineering</span> with React.js, Next.js,
-              TypeScript, and modern UI development. I enjoy translating designs into polished interfaces, creating
-              reusable components, integrating APIs, and improving the usability of complex applications.
-            </p>
-            <p>
-              I also have backend development knowledge and am building further expertise with{" "}
-              <span className="text-fg">Python, FastAPI, and PostgreSQL</span>. I value clean architecture, practical
-              problem-solving, continuous learning, and collaboration with teams building useful digital products.
-            </p>
-          </Reveal>
+        <div className="mt-24 sm:mt-32">
+          <AboutStatement />
         </div>
 
-        <ul className="mt-16 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {principles.map((p, i) => (
-            <Reveal as="li" key={p.title} delay={i * 0.06}>
-              <div data-spotlight className="spotlight surface h-full rounded-2xl p-6">
-                <span className="font-mono text-[0.7rem] text-accent-soft">0{i + 1}</span>
-                <h3 className="mt-6 text-base font-medium text-fg">{p.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted">{p.text}</p>
-              </div>
-            </Reveal>
-          ))}
-        </ul>
+        <SubRow className="mt-20 sm:mt-24" label="Stack" note="What I ship with today, and what I'm learning next.">
+          <StackFile />
+        </SubRow>
+
+        <SubRow className="mt-20 sm:mt-24" label="How I work" note="Three habits behind every interface.">
+          <Approach />
+        </SubRow>
       </div>
     </section>
+  );
+}
+
+/** A labelled row on the section grid: label in the left rail, content in the main column. */
+function SubRow({
+  label,
+  note,
+  className,
+  children,
+}: {
+  label: string;
+  note: string;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className={cn("grid gap-6 border-t border-line pt-10 md:grid-cols-12 md:gap-10", className)}>
+      <Reveal className="md:col-span-3">
+        <h3 className="label-mono text-subtle">{label}</h3>
+        <p className="mt-3 max-w-[16rem] text-sm leading-relaxed text-muted">{note}</p>
+      </Reveal>
+      <div className="min-w-0 md:col-span-9">{children}</div>
+    </div>
   );
 }

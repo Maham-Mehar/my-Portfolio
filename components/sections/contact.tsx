@@ -69,19 +69,31 @@ export function Contact({ resumeHref }: { resumeHref: string | null }) {
       />
 
       <div className="container-page">
-        <Reveal className="flex items-center gap-3">
-          <span className="label-mono text-accent-soft">07</span>
-          <span aria-hidden className="h-px w-8 bg-gradient-to-r from-accent/70 to-line-strong" />
-          <span className="label-mono text-subtle">Contact</span>
+        {/* Closing statement: the last index, two offset lines, then a lit rule into the details */}
+        <Reveal className="flex items-center justify-between gap-6">
+          <span className="flex items-center gap-3">
+            <span className="label-mono text-accent-soft">07 / 07</span>
+            <span aria-hidden className="h-px w-8 bg-gradient-to-r from-accent/70 to-line-strong" />
+            <span className="label-mono text-subtle">Contact</span>
+          </span>
+          <span className="label-mono hidden text-subtle sm:block">Final section</span>
         </Reveal>
 
-        <SplitText
+        <h2
           id="contact-title"
-          className="mt-8 max-w-4xl text-[clamp(2.4rem,6.5vw,5rem)] leading-[1] font-medium tracking-[-0.045em] text-balance text-fg"
+          className="mt-10 text-[clamp(2.6rem,7.4vw,6.5rem)] leading-[0.98] font-medium tracking-[-0.05em] text-fg"
         >
-          Have a product to build?{" "}
-          <em className="font-serif font-normal tracking-[-0.02em] text-gradient">Let&apos;s make it happen.</em>
-        </SplitText>
+          <SplitText as="span" className="block">
+            Have a product to build?
+          </SplitText>{" "}
+          <SplitText as="span" className="mt-2 block sm:text-right">
+            <em className="font-serif font-normal tracking-[-0.02em] text-gradient">Let&apos;s make it happen.</em>
+          </SplitText>
+        </h2>
+
+        <div aria-hidden className="relative mt-12 h-px bg-line">
+          <span className="signal-line absolute inset-0" />
+        </div>
 
         <div className="mt-14 grid gap-12 lg:grid-cols-12 lg:gap-12">
           <div className="lg:col-span-5">

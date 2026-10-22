@@ -60,6 +60,17 @@ export function IntelligenceCore({ capabilities }: { capabilities: Capability[] 
     redraw.current();
   }, []);
 
+  /* Selections now come from the Core Stack section's cards (see stack-deck.tsx). */
+  useEffect(() => {
+    function onSelect(e: Event) {
+      const name = (e as CustomEvent<string | null>).detail;
+      const i = name ? capabilities.findIndex((c) => c.name === name) : -1;
+      select(i >= 0 ? i : null, true);
+    }
+    window.addEventListener("core:select", onSelect);
+    return () => window.removeEventListener("core:select", onSelect);
+  }, [capabilities, select]);
+
   /* Ambient: gently walk through capabilities (two loops) until the visitor takes over. */
   useEffect(() => {
     if (reduce || interacted) return;
@@ -146,8 +157,6 @@ export function IntelligenceCore({ capabilities }: { capabilities: Capability[] 
     ly.set(0);
   }
 
-  const active = selected !== null ? capabilities[selected] : null;
-
   return (
     <div className="relative">
       <div
@@ -210,66 +219,8 @@ export function IntelligenceCore({ capabilities }: { capabilities: Capability[] 
           ))}
         </div>
 
-        {/* System readouts */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-[4%] top-[3%] flex justify-between font-mono text-[0.58rem] tracking-[0.16em] text-subtle uppercase"
-        >
-          <span>Neural core · v2</span>
-          <span className="flex items-center gap-1.5">
-            <span className="size-1 rounded-full bg-ok [animation:pulse-dot_2.4s_ease-in-out_infinite]" />
-            Live render
-          </span>
-        </div>
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-[4%] bottom-[3%] flex justify-between font-mono text-[0.58rem] tracking-[0.16em] text-subtle uppercase"
-        >
-          <span ref={statsEl} />
-          <span className="hidden sm:inline">Move cursor to interact</span>
-        </div>
-      </div>
-
-      {/* Capability console — the real, accessible interaction */}
-      <div className="relative z-10 mx-auto mt-2 w-full max-w-[500px] rounded-2xl border border-line bg-ink-900/70 p-4 backdrop-blur-xl sm:p-5">
-        <div className="flex items-center justify-between gap-3">
-          <h2 id="capability-title" className="label-mono text-fg">
-            Capability map
-          </h2>
-          <span className="font-mono text-[0.6rem] text-subtle">select to trace</span>
-        </div>
-        <div role="group" aria-labelledby="capability-title" className="mt-3 flex flex-wrap gap-1.5">
-          {capabilities.map((c, i) => (
-            <button
-              key={c.name}
-              type="button"
-              aria-pressed={selected === i}
-              onClick={() => select(selected === i && interacted ? null : i, true)}
-              className={cn(
-                "min-h-9 rounded-full border px-3 font-mono text-[0.7rem] transition-[color,border-color,background-color,box-shadow] duration-300",
-                selected === i
-                  ? "border-cyan/50 bg-cyan/10 text-fg shadow-[0_0_18px_-6px_rgb(126_227_245/0.8)]"
-                  : "border-line text-muted hover:border-line-strong hover:text-fg",
-              )}
-            >
-              {c.name}
-            </button>
-          ))}
-        </div>
-        <p
-          aria-live={interacted ? "polite" : "off"}
-          className="mt-3 min-h-10 border-t border-line pt-3 text-[0.8125rem] leading-relaxed text-muted"
-        >
-          {active ? (
-            <>
-              <span className="text-fg">{active.name}</span> · {active.group} ·{" "}
-              <span className="text-accent-soft">{active.level}</span> — {active.levelNote.toLowerCase()}
-              {active.projects.length > 0 && <> · featured in {active.projects.join(", ")}</>}.
-            </>
-          ) : (
-            "Pick a technology to light up its cluster and see how I actually use it."
-          )}
-        </p>
+        {/* Readouts removed for a cleaner hero; stats stay available to the renderer. */}
+        <span ref={statsEl} hidden />
       </div>
     </div>
   );

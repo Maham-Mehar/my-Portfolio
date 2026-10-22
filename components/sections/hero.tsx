@@ -4,7 +4,6 @@ import { Magnetic } from "@/components/ui/magnetic";
 import { Parallax } from "@/components/ui/parallax";
 import { RollText } from "@/components/ui/roll-text";
 import { ScrambleText } from "@/components/ui/scramble-text";
-import { experience } from "@/data/experience";
 import { projects } from "@/data/projects";
 import { site } from "@/data/site";
 import { levelMeta, skillGroups } from "@/data/skills";
@@ -40,7 +39,6 @@ function stage(d: number) {
 }
 
 export function Hero() {
-  const current = experience[0];
   let wordIndex = 0;
 
   return (
@@ -48,7 +46,7 @@ export function Hero() {
       id="home"
       data-spotlight
       aria-labelledby="hero-title"
-      className="relative isolate flex min-h-[100svh] flex-col overflow-hidden pt-24 pb-10 sm:pt-28 lg:pb-12"
+      className="relative isolate flex flex-col overflow-hidden pt-24 pb-10 sm:pt-28 lg:pb-12"
     >
       {/* ── Atmosphere ── */}
       <div aria-hidden className="stage-in absolute inset-0 -z-10" style={stage(-0.3)}>
@@ -62,7 +60,7 @@ export function Hero() {
 
       <div className="container-page grid flex-1 items-center gap-y-14 lg:grid-cols-12 lg:gap-x-6">
         {/* ── Identity ── */}
-        <div className="relative z-10 min-w-0 lg:col-span-7">
+        <div className="relative z-10 min-w-0 lg:col-span-7 lg:self-start lg:pt-10">
           <div className="stage-in flex flex-wrap items-center gap-3" style={stage(0.15)}>
             <p className="inline-flex max-w-full items-center gap-2.5 rounded-full border border-accent/25 bg-ink-900/60 px-3 py-1.5 backdrop-blur-md">
               <span aria-hidden className="relative flex size-2">
@@ -85,7 +83,7 @@ export function Hero() {
 
           <h1
             id="hero-title"
-            className="mt-7 text-[clamp(2.1rem,8.4vw,4.25rem)] leading-[1] font-medium tracking-[-0.05em] text-fg lg:text-[clamp(3rem,4.4vw,4.75rem)]"
+            className="mt-7 text-[clamp(1.9rem,7.4vw,3.75rem)] leading-[1] font-medium tracking-[-0.05em] text-fg lg:text-[clamp(2.6rem,3.9vw,4.15rem)]"
           >
             {lines.map((line, li) => (
               <span key={li} className="block sm:whitespace-nowrap">
@@ -142,35 +140,6 @@ export function Hero() {
               </Magnetic>
             </div>
           </div>
-
-          {/* Stack indicator — a signal runs along the hairline toward the core */}
-          <div className="stage-in mt-12 max-w-xl" style={stage(1.3)}>
-            <div className="flex items-center gap-3">
-              <span className="label-mono text-subtle">Stack</span>
-              <span aria-hidden className="signal-line relative h-px flex-1 bg-line" />
-            </div>
-            <ul
-              aria-label="Core stack"
-              className="mt-3 flex flex-wrap gap-x-1 gap-y-1 font-mono text-[0.75rem] text-accent-soft"
-            >
-              {stack.map((tech, i) => (
-                <li key={tech} className="flex items-center">
-                  {tech}
-                  {i < stack.length - 1 && (
-                    <span aria-hidden className="px-2 text-subtle">
-                      /
-                    </span>
-                  )}
-                </li>
-              ))}
-            </ul>
-            {current && (
-              <p className="mt-4 text-xs text-subtle">
-                Currently <span className="text-muted">{current.role}</span> at{" "}
-                <span className="text-muted">{current.company}</span>
-              </p>
-            )}
-          </div>
         </div>
 
         {/* ── AI centerpiece ── */}
@@ -179,20 +148,6 @@ export function Hero() {
             <IntelligenceCore capabilities={capabilities} />
           </Parallax>
         </div>
-      </div>
-
-      {/* Scroll cue */}
-      <div className="container-page stage-in mt-10 hidden items-center justify-between md:flex" style={stage(1.6)}>
-        <a
-          href="#about"
-          className="group inline-flex items-center gap-3 rounded-full text-subtle transition-colors hover:text-fg"
-        >
-          <span className="relative h-10 w-px overflow-hidden bg-line">
-            <span className="scroll-cue absolute inset-0 bg-gradient-to-b from-cyan to-violet" />
-          </span>
-          <span className="label-mono">Scroll to explore</span>
-        </a>
-        <span className="label-mono text-subtle">01 / About</span>
       </div>
     </section>
   );

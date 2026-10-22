@@ -1,5 +1,8 @@
 import { Accent, SectionHeading } from "@/components/ui/section-heading";
+import { skillGroups } from "@/data/skills";
 import { SkillsNetwork } from "./skills-network";
+
+const skillCount = skillGroups.reduce((n, g) => n + g.skills.length, 0);
 
 export function Expertise() {
   return (
@@ -12,6 +15,8 @@ export function Expertise() {
         <SectionHeading
           index="02"
           eyebrow="Expertise"
+          variant="spec"
+          meta={[`${skillCount} skills`, `${skillGroups.length} groups`]}
           id="expertise-title"
           title={
             <>

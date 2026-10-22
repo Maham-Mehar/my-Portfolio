@@ -1,5 +1,6 @@
 import { Reveal } from "@/components/ui/reveal";
 import { Accent, SectionHeading } from "@/components/ui/section-heading";
+import { LetteredList } from "@/components/ui/lettered-list";
 import { Tag } from "@/components/ui/tag";
 import { TimelineNode, TimelineRail } from "@/components/ui/timeline";
 import { experience } from "@/data/experience";
@@ -16,6 +17,8 @@ export function Experience() {
           index="05"
           eyebrow="Experience"
           id="experience-title"
+          variant="timeline"
+          meta={[`${experience.at(-1)?.start ?? ""} — ${experience[0]?.end ?? ""}`, `${experience.length} roles`]}
           title={
             <>
               Where I&apos;ve <Accent>worked</Accent>.
@@ -23,8 +26,8 @@ export function Experience() {
           }
         />
 
-        <ol className="relative mt-14 md:ml-[25%] md:pl-2.5">
-          <TimelineRail className="top-2 bottom-2 left-[5px]" />
+        <ol className="relative mt-14 md:pl-2.5">
+          <TimelineRail className="top-2 bottom-2 left-[5px] md:left-[15px]" />
           {experience.map((job, i) => (
             <Reveal as="li" key={job.id} delay={i * 0.08} className="relative pb-14 pl-10 last:pb-0">
               <TimelineNode className="absolute top-1.5 left-0" />
@@ -48,14 +51,7 @@ export function Experience() {
                   <span className="text-muted"> · {job.company}</span>
                 </h3>
                 <p className="mt-3 max-w-2xl leading-relaxed text-muted">{job.summary}</p>
-                <ul className="mt-5 max-w-2xl space-y-2">
-                  {job.points.map((point) => (
-                    <li key={point} className="flex gap-3 text-[0.9375rem] leading-relaxed text-fg/85">
-                      <span aria-hidden className="mt-[0.6rem] h-px w-3 shrink-0 bg-line-strong" />
-                      {point}
-                    </li>
-                  ))}
-                </ul>
+                <LetteredList items={job.points} className="mt-5 max-w-2xl" />
                 <div className="mt-5 flex flex-wrap gap-1.5">
                   {job.tags.map((tag) => (
                     <Tag key={tag}>{tag}</Tag>

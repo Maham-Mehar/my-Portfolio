@@ -99,6 +99,12 @@
   text-transform: uppercase;
 }
 
+/* Outlined display type (oversized section indices) */
+@utility text-outline {
+  color: transparent;
+  -webkit-text-stroke: 1px rgb(143 176 255 / 0.16);
+}
+
 /* Fine engineering grid, faded at the edges */
 @utility bg-grid {
   background-image:

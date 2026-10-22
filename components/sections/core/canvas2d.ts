@@ -4,6 +4,7 @@
  */
 import {
   createNetwork,
+  createOrbit,
   easeOut,
   introDelay,
   placeLabels,
@@ -32,9 +33,7 @@ export function start2D(rt: CoreRuntime): () => void {
   let w = 0;
   let h = 0;
   let dpr = 1;
-  let spin = 0.6;
-  let tiltX = 0.28;
-  let tiltY = 0;
+  const orbit = createOrbit(rt.stage, rt.reduce);
   let energy = 0;
   const proj = nodes.map(() => ({ x: 0, y: 0, z: 0, s: 1 }));
 
@@ -52,33 +51,25 @@ export function start2D(rt: CoreRuntime): () => void {
       const ptr = rt.pointer;
 
       if (!rt.reduce) {
-        spin += dt * (0.12 + energy * 0.08);
-        tiltX += ((ptr.inside ? 0.28 + ptr.y * 0.55 : 0.28) - tiltX) * 0.04;
-        tiltY += ((ptr.inside ? ptr.x * 0.7 : 0) - tiltY) * 0.04;
+        orbit.update(dt);
         energy += ((ptr.inside ? 1 : 0) - energy) * 0.05;
       }
 
       const cx = w / 2;
       const cy = h / 2;
-      const R = Math.min(w, h) * 0.34 * (0.35 + 0.65 * form);
+      const R = Math.min(w, h) * 0.4 * (0.35 + 0.65 * form);
       const f = R * 2.6;
-      const ry = spin + tiltY;
-      const cosY = Math.cos(ry);
-      const sinY = Math.sin(ry);
-      const cosX = Math.cos(tiltX);
-      const sinX = Math.sin(tiltX);
       const t = now / 1000;
 
       nodes.forEach((n, i) => {
         const breathe = rt.reduce ? 1 : 1 + Math.sin(t * 0.9 + n.phase) * 0.018;
-        const x1 = n.x * cosY - n.z * sinY;
-        const z1 = n.x * sinY + n.z * cosY;
-        const y1 = n.y * cosX - z1 * sinX;
-        const z2 = n.y * sinX + z1 * cosX;
+        // Same orientation as the WebGL renderer (+y up, +z toward the viewer).
+        const [rx, ry, rz] = orbit.apply(n.x, n.y, n.z);
+        const z2 = -rz; // this renderer's depth: positive = further away
         const s = f / (f + z2 * R);
         const p = proj[i]!;
-        p.x = cx + x1 * R * breathe * s;
-        p.y = cy + y1 * R * breathe * s;
+        p.x = cx + rx * R * breathe * s;
+        p.y = cy - ry * R * breathe * s;
         p.z = z2;
         p.s = s;
       });
@@ -187,5 +178,8 @@ export function start2D(rt: CoreRuntime): () => void {
     },
   });
 
-  return loop.stop;
+  return () => {
+    loop.stop();
+    orbit.dispose();
+  };
 }

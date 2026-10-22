@@ -9,6 +9,7 @@ import { ProjectMedia } from "@/components/ui/project-media";
 import { Reveal } from "@/components/ui/reveal";
 import { Accent, SectionHeading } from "@/components/ui/section-heading";
 import { SplitText } from "@/components/ui/split-text";
+import { LetteredList } from "@/components/ui/lettered-list";
 import { Tag } from "@/components/ui/tag";
 import type { InterestId } from "@/data/interests";
 import { projects, type Project } from "@/data/projects";
@@ -31,11 +32,14 @@ export function Projects() {
           index="03"
           eyebrow="Selected work"
           id="projects-title"
+          variant="showcase"
+          meta={[`${projects.length} projects`, "Contribution-first"]}
           title={
             <>
-              Projects, and <Accent>exactly</Accent> what I contributed to them.
+              Projects, and <Accent>exactly</Accent>
             </>
           }
+          title2="what I contributed to them."
           intro="Company and product work across business services, marketplaces and travel. Where a project belongs to a wider team, I say so — and describe my part."
         />
 
@@ -123,14 +127,7 @@ function ProjectEntry({ project, index, state }: ProjectEntryProps) {
               )}
 
               <h4 className="label-mono mt-8 text-subtle">My contribution</h4>
-              <ul className="mt-3 space-y-2.5">
-                {project.contributions.map((c) => (
-                  <li key={c} className="flex gap-3 text-[0.9375rem] leading-relaxed text-fg/85">
-                    <span aria-hidden className="mt-[0.6rem] h-px w-3 shrink-0 bg-accent" />
-                    {c}
-                  </li>
-                ))}
-              </ul>
+              <LetteredList items={project.contributions} className="mt-3" />
 
               <div className="mt-8 flex flex-wrap gap-1.5">
                 {project.stack.map((s) => (
